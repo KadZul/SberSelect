@@ -5,7 +5,7 @@
     class="sber-select"
     @keydown="onKeyDown"
   >
-    <button ref="sberSelectValue" class="value" type="button" @click="toggleDropdown">
+    <button class="value" type="button" @click="toggleDropdown">
       <span v-if="label" class="label">
         {{ label }}
       </span>
