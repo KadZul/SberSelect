@@ -1,6 +1,11 @@
 <template>
-  <div :class="{'opened': opened}" ref="sberSelect" class="sber-select" @keydown="onKeyDown">
-    <button class="value" type="button" @click="toggleDropdown">
+  <div
+    :class="{ opened: opened, disabled: disabled }"
+    ref="sberSelect"
+    class="sber-select"
+    @keydown="onKeyDown"
+  >
+    <button ref="sberSelectValue" class="value" type="button" @click="toggleDropdown">
       <span v-if="label" class="label">
         {{ label }}
       </span>
@@ -12,6 +17,7 @@
       <button
         v-for="(option, index) of options"
         :key="index"
+        :data-index="index"
         class="option"
         @click="onOptionClick(option, index)"
       >
@@ -49,6 +55,7 @@ export default class HelloWorld extends Vue {
   @Prop() public options!: Array<any>|any
   @Prop({ default: 'label' }) public optionLabel!: string
   @Prop({ default: 'value' }) public optionValue!: string
+  @Prop({ default: false }) public disabled?: boolean
 
   opened = false
 
@@ -104,8 +111,34 @@ export default class HelloWorld extends Vue {
         this.onUpKey()
         break
       case 32:
+        event.preventDefault()
+        this.onKeyEnter(event)
+        break
       case 13:
+        event.preventDefault()
+        this.onKeyEnter(event)
+        break
       case 27:
+        event.preventDefault()
+        this.opened = false
+    }
+  }
+
+  onKeyEnter(event: any): void {
+    const OPTION_IDX = event?.target.getAttribute('data-index')
+
+    this.opened = true
+
+    if (OPTION_IDX) {
+      const SELECTED_VALUE = this.isOptionsObject
+        ? this.getOptionValueFromObjectByIndex(OPTION_IDX)
+        : this.getOptionValue(this.options[OPTION_IDX])
+
+      if (SELECTED_VALUE) {
+        this.opened = false
+        this.$emit('input', SELECTED_VALUE)
+        this.$emit('change', SELECTED_VALUE)
+      }
     }
   }
 
@@ -143,6 +176,13 @@ export default class HelloWorld extends Vue {
     if (EL) {
       EL.focus()
     }
+  }
+
+  getOptionValueFromObjectByIndex(idx: number): string | number | null {
+    const OBJECT_VALUES = Object.keys(this.options)
+    const TARGET_VALUE = OBJECT_VALUES[idx - 1]
+
+    return TARGET_VALUE || null
   }
 
   isOptionElement(el: Element | null): boolean {
@@ -186,7 +226,6 @@ export default class HelloWorld extends Vue {
   text-align: left;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, .15);
   border: 1px solid #e6e6e6;
   border-radius: 4px;
@@ -260,6 +299,16 @@ export default class HelloWorld extends Vue {
       &:after {
         transform: rotate(180deg);
       }
+    }
+  }
+
+  &.disabled {
+    pointer-events: none;
+
+    .value {
+      cursor: auto;
+      color: #434343;
+      background-color: #8e8f9466;
     }
   }
 }
