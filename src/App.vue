@@ -1,6 +1,19 @@
 <template>
   <div id="app">
-    <SberSelect v-model="selectValue" :options="object" @change="test"/>
+    <SberSelect
+      v-model="selectValue"
+      :options="arrayObjects"
+      option-label="title"
+      option-value="val"
+      @change="test"
+    >
+      <template #placeholder>
+        placeholder
+      </template>
+      <!--<template #option="{ option, index }">
+        <span>{{ getOptionValue(option, index) }}</span>
+      </template>-->
+    </SberSelect>
   </div>
 </template>
 
@@ -18,26 +31,36 @@ export default class App extends Vue {
   arrayPrimitives = [1, 2, 3]
   arrayObjects = [
     {
-      value: 1,
-      label: 'one'
+      val: 1,
+      title: 'one'
     },
     {
-      value: 2,
-      label: 'two'
+      val: 2,
+      title: 'two'
     },
     {
-      value: 1,
-      label: 'three'
+      val: 3,
+      title: 'three'
     }
   ]
   object = {
-    1: {label: 'one', id: 1},
-    2: {label: 'two', id: 1},
-    3: {label: 'three', id: 1}
+    245: {label: 'one', id: 1, message: 'Такие дела 1'},
+    11: {label: 'two', id: 1, message: 'Такие дела 2'},
+    125: {label: 'three', id: 1, message: 'Такие дела 3'}
+  }
+  objectPrimitives = {
+    1: 'one',
+    2: 'two',
+    3: 'three'
   }
 
   test(val: any): any {
     console.log(val)
+  }
+
+  getOptionValue(val: any, index: any) {
+    console.log(val)
+    return `${val?.message} ${val?.label} ${index}`
   }
 }
 </script>
