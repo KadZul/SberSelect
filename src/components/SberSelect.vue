@@ -89,14 +89,6 @@ export default class SberSelect extends Vue {
 
   // methods
 
-  onOutClick(event: any): void {
-    const isSelectEl = (path: Array<HTMLElement>) => path.find(el => el === this.$refs?.sberSelect)
-
-    if (!isSelectEl(event.path)) {
-      this.opened = false
-    }
-  }
-
   onKeyDown(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case 40:
@@ -216,6 +208,14 @@ export default class SberSelect extends Vue {
   toggleDropdown(): void {
     if (this.options) {
       this.opened = !this.opened
+    }
+  }
+
+  onOutClick(event: any): void {
+    const isSelectEl = (path: Array<HTMLElement>) => path.find(el => el === this.$refs?.sberSelect)
+
+    if (!isSelectEl(event.path)) {
+      this.opened = false
     }
   }
 
