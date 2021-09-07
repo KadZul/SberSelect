@@ -19,7 +19,7 @@
         :key="index"
         :data-index="index"
         class="option"
-        @click="(event) => onOptionClick(event, option, index)"
+        @click="onOptionClick({ option, index, event: $event })"
       >
         <slot :option="option" :index="index" name="option">
           {{ getOptionLabel(option) }}
@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Component, Model, Prop, Vue } from 'vue-property-decorator'
 import { isObject } from '@/utils/utils'
-import { Option, OptionArray, OptionRecord, UpdateEvent } from '@/types/types'
+import {Option, OptionArray, OptionClickEvent, OptionRecord, UpdateEvent} from '@/types/types'
 
 @Component({
   name: 'SberSelect',
@@ -40,14 +40,14 @@ import { Option, OptionArray, OptionRecord, UpdateEvent } from '@/types/types'
 export default class SberSelect extends Vue {
   @Model('input', { type: [String, Number], default: null }) value!: string | number | undefined
 
-  @Prop({ default: () => [] }) public options!: OptionArray | OptionRecord
-  @Prop({ default: 'label' }) public optionLabel!: string
-  @Prop({ default: 'value' }) public optionValue!: string | number
-  @Prop({ default: false }) public disabled?: boolean
+  @Prop({ default: () => [], type: [Array, Object] }) public options!: OptionArray | OptionRecord
+  @Prop({ default: 'label', type: String }) public optionLabel!: string
+  @Prop({ default: 'value', type: [String, Number] }) public optionValue!: string | number
+  @Prop({ default: false, type: Boolean }) public disabled?: boolean
 
   // data
 
-  opened = false
+  private opened = false
 
   // computed
 
@@ -61,7 +61,7 @@ export default class SberSelect extends Vue {
     return isObject(this.options)
   }
 
-  get classes(): any {
+  get classes(): Record<string, boolean | undefined> {
     return {
       opened: this.opened,
       disabled: this.disabled,
@@ -93,7 +93,7 @@ export default class SberSelect extends Vue {
     }
   }
 
-  onOptionClick(event: Event, option: Option, index: string | number): void {
+  onOptionClick({ event, option, index }: OptionClickEvent): void {
     const SELECTED_VALUE = this.isOptionsObject ? index : this.getOptionValue(option)
 
     this.updateAndHide({
@@ -173,7 +173,7 @@ export default class SberSelect extends Vue {
       : this.getSelectedOptionFromArray()
   }
 
-  getOptionValueByIndex(idx: string): any {
+  getOptionValueByIndex(idx: string): unknown {
     return this.isOptionsObject
       ? this.getOptionValueFromObjectByIndex(idx)
       : this.getOptionValueFromArrayByIndex(idx)
@@ -191,14 +191,14 @@ export default class SberSelect extends Vue {
     }
   }
 
-  getOptionValueFromObjectByIndex(idx: string): any {
+  getOptionValueFromObjectByIndex(idx: string): unknown {
     const OBJECT_VALUES = Object.keys(this.options)
     const TARGET_VALUE = OBJECT_VALUES[Number(idx) - 1]
 
     return TARGET_VALUE || null
   }
 
-  getOptionValueFromArrayByIndex(idx: string): any {
+  getOptionValueFromArrayByIndex(idx: string): unknown {
     const OPTION = this.options[Number(idx)] as Option
 
     if (OPTION) {
@@ -212,9 +212,9 @@ export default class SberSelect extends Vue {
       : option
   }
 
-  getOptionValue(option: Option): any {
+  getOptionValue(option: Option): unknown {
     return option instanceof Object && !(option instanceof Array)
-      ? (option[this.optionValue] as any)
+      ? option[this.optionValue]
       : option
   }
 
@@ -234,6 +234,9 @@ export default class SberSelect extends Vue {
     }
   }
 
+  /*
+   * TODO: разобарться с типами событий
+   */
   onOutClick(event: any): void {
     const isSelectEl = (path: Array<HTMLElement>) =>
       path.find((el) => el === this.$refs?.sberSelect)
