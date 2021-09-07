@@ -168,21 +168,6 @@ export default class SberSelect extends Vue {
     }
   }
 
-  focusOption(el: Element): void {
-    const EL = el as HTMLElement
-
-    if (EL) {
-      EL.focus()
-    }
-  }
-
-  getOptionValueFromObjectByIndex(idx: number): string | number | null {
-    const OBJECT_VALUES = Object.keys(this.options)
-    const TARGET_VALUE = OBJECT_VALUES[idx - 1]
-
-    return TARGET_VALUE || null
-  }
-
   getSelectedOption(): Option | string | number | undefined {
     return this.isOptionsObject
       ? this.getSelectedOptionFromObject()
@@ -211,6 +196,21 @@ export default class SberSelect extends Vue {
     return option instanceof Object && !(option instanceof Array)
       ? (option[this.optionValue] as any)
       : option;
+  }
+
+  getOptionValueFromObjectByIndex(idx: number): string | number | null {
+    const OBJECT_VALUES = Object.keys(this.options)
+    const TARGET_VALUE = OBJECT_VALUES[idx - 1]
+
+    return TARGET_VALUE || null
+  }
+
+  focusOption(el: Element): void {
+    const EL = el as HTMLElement
+
+    if (EL) {
+      EL.focus()
+    }
   }
 
   toggleDropdown(): void {
