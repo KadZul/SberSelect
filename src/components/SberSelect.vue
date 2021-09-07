@@ -246,7 +246,7 @@ export default class SberSelect extends Vue {
     }
   }
 
-  private isOptionElement(el: Element | null): boolean {
+  public isOptionElement(el: Element | null): boolean {
     return !!el && this.optionsElements.some((optionEl) => optionEl === el)
   }
 
