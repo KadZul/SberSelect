@@ -1,10 +1,9 @@
-import { Option } from '@/types/types';
 
-function isObject(val: Option | string | number | boolean | undefined): boolean {
-    return typeof val === 'object' && val !== null && !Array.isArray(val) && typeof val !== 'function'
+function isObject(val: any): boolean {
+    return val instanceof Object && !(val instanceof Array)
 }
 
-function isPrimitive(val: Option | string | number | boolean | undefined): boolean {
+function isPrimitive(val: any): boolean {
     return typeof val === 'object' ? val === null : typeof val !== 'function'
 }
 

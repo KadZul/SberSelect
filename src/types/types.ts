@@ -1,25 +1,12 @@
-interface ArrayObjectOptions {
-  [index: string]: {
-    [key: string]: string | number | boolean | Option
-  }
-}
 
-interface ArrayPrimitiveOptions {
-  [index: string]: string | number
-}
+type OptionArray = string[] | number[] | Option[]
 
-interface ObjectOptions {
-  [key: string]: string | number | boolean | Option
-}
+type OptionRecord = Record<string | number, undefined | Option>
 
-interface Option {
-  [key: string]: Option | string | number | boolean | undefined
-}
-
+type Option = Record<string, any> | string | number
 
 export {
-  ArrayObjectOptions,
-  ArrayPrimitiveOptions,
-  ObjectOptions,
-  Option
+  Option,
+  OptionArray,
+  OptionRecord,
 }

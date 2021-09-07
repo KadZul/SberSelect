@@ -30,19 +30,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Model, Prop, Vue } from "vue-property-decorator";
-import { isObject, isPrimitive } from '@/utils/utils';
+import { Component, Emit, Model, Prop, Vue } from "vue-property-decorator"
+import { isObject } from '@/utils/utils'
+import { Option, OptionArray, OptionRecord } from '@/types/types'
 
 @Component({
   name: 'SberSelect'
 })
 
-export default class HelloWorld extends Vue {
-  @Model('input', { type: [String, Number] }) value!: string|number
+export default class SberSelect extends Vue {
+  @Model('input', { type: [String, Number], default: null }) value!: string | number | undefined
 
   @Emit('input')
   @Emit('change')
-  onOptionClick(option: any, index: string | number): string | number {
+  onOptionClick(option: Option, index: string | number): string | number {
     const SELECTED_VALUE = this.isOptionsObject
       ? index
       : this.getOptionValue(option)
@@ -52,9 +53,9 @@ export default class HelloWorld extends Vue {
     return SELECTED_VALUE
   }
 
-  @Prop() public options!: Array<any>|any
+  @Prop({ default: () => [] }) public options!: OptionArray | OptionRecord
   @Prop({ default: 'label' }) public optionLabel!: string
-  @Prop({ default: 'value' }) public optionValue!: string
+  @Prop({ default: 'value' }) public optionValue!: string | number
   @Prop({ default: false }) public disabled?: boolean
 
   opened = false
@@ -76,6 +77,8 @@ export default class HelloWorld extends Vue {
     return OPTIONS_CHILDREN || []
   }
 
+  // lifecycle hooks
+
   mounted(): void {
     document.addEventListener('click', this.onOutClick)
   }
@@ -84,13 +87,7 @@ export default class HelloWorld extends Vue {
     document.removeEventListener('click', this.onOutClick)
   }
 
-  getOptionLabel(option: any): string|number {
-    return isObject(option) ? option[this.optionLabel] : option
-  }
-
-  getOptionValue(option: any): string|number {
-    return isObject(option) ? option[this.optionValue] : option
-  }
+  // methods
 
   onOutClick(event: any): void {
     const isSelectEl = (path: Array<HTMLElement>) => path.find(el => el === this.$refs?.sberSelect)
@@ -130,9 +127,10 @@ export default class HelloWorld extends Vue {
     this.opened = true
 
     if (OPTION_IDX) {
+      const OPTION = this.options[OPTION_IDX] as Option
       const SELECTED_VALUE = this.isOptionsObject
         ? this.getOptionValueFromObjectByIndex(OPTION_IDX)
-        : this.getOptionValue(this.options[OPTION_IDX])
+        : this.getOptionValue(OPTION)
 
       if (SELECTED_VALUE) {
         this.opened = false
@@ -185,38 +183,44 @@ export default class HelloWorld extends Vue {
     return TARGET_VALUE || null
   }
 
-  isOptionElement(el: Element | null): boolean {
-    return !!el && this.optionsElements.some(optionEl => optionEl === el)
-  }
-
-  getSelectedOption(): any {
+  getSelectedOption(): Option | string | number | undefined {
     return this.isOptionsObject
       ? this.getSelectedOptionFromObject()
       : this.getSelectedOptionFromArray()
   }
 
-  getSelectedOptionFromObject(): any {
-    if (this.value && this.options) {
-      return isObject(this.options[this.value])
-        ? this.options[this.value][this.optionLabel]
-        : this.options[this.value]
+  getSelectedOptionFromObject(): Option | string | number | undefined {
+    return this.value && !Array.isArray(this.options)
+      ? this.options[this.value]
+      : undefined
+  }
+
+  getSelectedOptionFromArray(): Option | undefined {
+    if (this.value && Array.isArray(this.options)) {
+      return this.options.find((option: Option) => this.getOptionValue(option) === this.value)
     }
   }
 
-  getSelectedOptionFromArray(): any {
-    const isTargetOption = (option: any) => isPrimitive(option)
-        ? option === this.value
-        : option[this.optionValue] === this.value;
+  getOptionLabel(option: Option): string | number {
+    return option instanceof Object && !(option instanceof Array)
+      ? option[this.optionLabel]
+      : option;
+  }
 
-    if (this.value && this.options) {
-      return this.options.find(isTargetOption)
-    }
+  getOptionValue(option: Option): any {
+    return option instanceof Object && !(option instanceof Array)
+      ? (option[this.optionValue] as any)
+      : option;
   }
 
   toggleDropdown(): void {
     if (this.options) {
       this.opened = !this.opened
     }
+  }
+
+  isOptionElement(el: Element | null): boolean {
+    return !!el && this.optionsElements.some(optionEl => optionEl === el)
   }
 }
 </script>
