@@ -38,12 +38,12 @@ import {Option, OptionArray, OptionClickEvent, OptionRecord, UpdateEvent} from '
   name: 'SberSelect',
 })
 export default class SberSelect extends Vue {
-  @Model('input', { type: [String, Number], default: null }) value!: string | number | undefined
+  @Model('input', { type: [String, Number], default: null }) private value!: string | number | undefined
 
-  @Prop({ default: () => [], type: [Array, Object] }) public options!: OptionArray | OptionRecord
-  @Prop({ default: 'label', type: String }) public optionLabel!: string
-  @Prop({ default: 'value', type: [String, Number] }) public optionValue!: string | number
-  @Prop({ default: false, type: Boolean }) public disabled?: boolean
+  @Prop({ default: () => [], type: [Array, Object] }) private options!: OptionArray | OptionRecord
+  @Prop({ default: 'label', type: String }) private optionLabel!: string
+  @Prop({ default: 'value', type: [String, Number] }) private optionValue!: string | number
+  @Prop({ default: false, type: Boolean }) private disabled?: boolean
 
   // data
 
@@ -51,24 +51,24 @@ export default class SberSelect extends Vue {
 
   // computed
 
-  get label(): string | number | null {
+  private get label(): string | number | null {
     const SELECTED_OPTION = this.getSelectedOption()
 
     return SELECTED_OPTION ? this.getOptionLabel(SELECTED_OPTION) : null
   }
 
-  get isOptionsObject(): boolean {
+  private get isOptionsObject(): boolean {
     return isObject(this.options)
   }
 
-  get classes(): Record<string, boolean | undefined> {
+  private get classes(): Record<string, boolean | undefined> {
     return {
       opened: this.opened,
       disabled: this.disabled,
     }
   }
 
-  get optionsElements(): Array<Element> {
+  public get optionsElements(): Array<Element> {
     const OPTIONS_EL = this.$refs?.sberSelectOptions as Element
     const OPTIONS_CHILDREN = OPTIONS_EL?.children ? [...OPTIONS_EL.children] : []
 
@@ -87,13 +87,13 @@ export default class SberSelect extends Vue {
 
   // methods
 
-  toggleDropdown(): void {
+  private toggleDropdown(): void {
     if (this.options) {
       this.opened ? this.hide() : this.show()
     }
   }
 
-  onOptionClick({ event, option, index }: OptionClickEvent): void {
+  private onOptionClick({ event, option, index }: OptionClickEvent): void {
     const SELECTED_VALUE = this.isOptionsObject ? index : this.getOptionValue(option)
 
     this.updateAndHide({
@@ -102,7 +102,7 @@ export default class SberSelect extends Vue {
     })
   }
 
-  onKeyDown(event: KeyboardEvent): void {
+  private onKeyDown(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case 40:
         event.preventDefault()
@@ -126,8 +126,8 @@ export default class SberSelect extends Vue {
     }
   }
 
-  onKeyEnter(event: KeyboardEvent): void {
-    const OPTION_IDX = this.getDataIndex(event)
+  private onKeyEnter(event: KeyboardEvent): void {
+    const OPTION_IDX = SberSelect.getDataIndex(event)
 
     this.show()
 
@@ -139,15 +139,15 @@ export default class SberSelect extends Vue {
     }
   }
 
-  onDownKey(): void {
+  private onDownKey(): void {
     const ACTIVE_EL = document.activeElement
 
     this.isOptionElement(ACTIVE_EL)
       ? this.focusNextOption(ACTIVE_EL)
-      : this.focusOption(this.optionsElements[0])
+      : SberSelect.focusOption(this.optionsElements[0])
   }
 
-  onUpKey(): void {
+  private onUpKey(): void {
     const ACTIVE_EL = document.activeElement
 
     if (this.isOptionElement(ACTIVE_EL)) {
@@ -155,50 +155,50 @@ export default class SberSelect extends Vue {
     }
   }
 
-  focusNextOption(el: Element | null): void {
+  public focusNextOption(el: Element | null): void {
     if (el && el.nextElementSibling) {
-      this.focusOption(el.nextElementSibling)
+      SberSelect.focusOption(el.nextElementSibling)
     }
   }
 
-  focusPrevOption(el: Element | null): void {
+  public focusPrevOption(el: Element | null): void {
     if (el && el.previousElementSibling) {
-      this.focusOption(el.previousElementSibling)
+      SberSelect.focusOption(el.previousElementSibling)
     }
   }
 
-  getSelectedOption(): Option | string | number | undefined {
+  private getSelectedOption(): Option | string | number | undefined {
     return this.isOptionsObject
       ? this.getSelectedOptionFromObject()
       : this.getSelectedOptionFromArray()
   }
 
-  getOptionValueByIndex(idx: string): unknown {
+  private getOptionValueByIndex(idx: string): unknown {
     return this.isOptionsObject
       ? this.getOptionValueFromObjectByIndex(idx)
       : this.getOptionValueFromArrayByIndex(idx)
   }
 
-  getSelectedOptionFromObject(): Option | string | number | undefined {
+  private getSelectedOptionFromObject(): Option | string | number | undefined {
     return this.value && !Array.isArray(this.options)
       ? this.options[this.value]
       : undefined
   }
 
-  getSelectedOptionFromArray(): Option | undefined {
+  private getSelectedOptionFromArray(): Option | undefined {
     if (this.value && Array.isArray(this.options)) {
       return this.options.find((option: Option) => this.getOptionValue(option) === this.value)
     }
   }
 
-  getOptionValueFromObjectByIndex(idx: string): unknown {
+  private getOptionValueFromObjectByIndex(idx: string): unknown {
     const OBJECT_VALUES = Object.keys(this.options)
     const TARGET_VALUE = OBJECT_VALUES[Number(idx) - 1]
 
     return TARGET_VALUE || null
   }
 
-  getOptionValueFromArrayByIndex(idx: string): unknown {
+  private getOptionValueFromArrayByIndex(idx: string): unknown {
     const OPTION = this.options[Number(idx)] as Option
 
     if (OPTION) {
@@ -206,19 +206,19 @@ export default class SberSelect extends Vue {
     }
   }
 
-  getOptionLabel(option: Option): string | number {
+  public getOptionLabel(option: Option): string | number {
     return option instanceof Object && !(option instanceof Array)
       ? option[this.optionLabel]
       : option
   }
 
-  getOptionValue(option: Option): unknown {
+  public getOptionValue(option: Option): unknown {
     return option instanceof Object && !(option instanceof Array)
       ? option[this.optionValue]
       : option
   }
 
-  focusOption(el: Element): void {
+  static focusOption(el: Element): void {
     const EL = el as HTMLElement
 
     if (EL) {
@@ -226,7 +226,7 @@ export default class SberSelect extends Vue {
     }
   }
 
-  updateAndHide({ event, value }: UpdateEvent): void {
+  private updateAndHide({ event, value }: UpdateEvent): void {
     if (value) {
       this.hide()
       this.$emit('input', value)
@@ -237,7 +237,7 @@ export default class SberSelect extends Vue {
   /*
    * TODO: разобарться с типами событий
    */
-  onOutClick(event: any): void {
+  private onOutClick(event: any): void {
     const isSelectEl = (path: Array<HTMLElement>) =>
       path.find((el) => el === this.$refs?.sberSelect)
 
@@ -246,21 +246,21 @@ export default class SberSelect extends Vue {
     }
   }
 
-  isOptionElement(el: Element | null): boolean {
+  private isOptionElement(el: Element | null): boolean {
     return !!el && this.optionsElements.some((optionEl) => optionEl === el)
   }
 
-  getDataIndex(event: KeyboardEvent): string {
+  static getDataIndex(event: KeyboardEvent): string {
     const TARGET = event?.target as HTMLElement
 
     return TARGET?.getAttribute('data-index') || ''
   }
 
-  show(): void {
+  public show(): void {
     this.opened = true
   }
 
-  hide(): void {
+  public hide(): void {
     this.opened = false
   }
 }
