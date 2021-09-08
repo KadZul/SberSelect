@@ -32,18 +32,18 @@
 <script lang="ts">
 import { Component, Model, Prop, Vue } from 'vue-property-decorator'
 import { isObject } from '@/utils/utils'
-import {Option, OptionArray, OptionClickEvent, OptionRecord, UpdateEvent} from '@/types/types'
+import { Option, OptionArray, OptionClickEvent, OptionRecord, UpdateEvent } from '@/types/types'
 
 @Component({
   name: 'SberSelect',
 })
 export default class SberSelect extends Vue {
-  @Model('input', { type: [String, Number], default: null }) private value!: string | number | undefined
+  @Model('input', { type: [String, Number], default: null }) readonly value!: string | number | undefined
 
-  @Prop({ default: () => [], type: [Array, Object] }) private options!: OptionArray | OptionRecord
-  @Prop({ default: 'label', type: String }) private optionLabel!: string
-  @Prop({ default: 'value', type: [String, Number] }) private optionValue!: string | number
-  @Prop({ default: false, type: Boolean }) private disabled?: boolean
+  @Prop({ default: () => [], type: [Array, Object] }) readonly options!: OptionArray | OptionRecord
+  @Prop({ default: 'label', type: String }) readonly optionLabel!: string
+  @Prop({ default: 'value', type: [String, Number] }) readonly optionValue!: string | number
+  @Prop({ default: false, type: Boolean }) readonly disabled?: boolean
 
   // data
 
