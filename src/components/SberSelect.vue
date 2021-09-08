@@ -167,6 +167,14 @@ export default class SberSelect extends Vue {
     }
   }
 
+  private updateAndHide({ event, value }: UpdateEvent): void {
+    if (value) {
+      this.hide()
+      this.$emit('input', value)
+      this.$emit('change', { originalEvent: event, value })
+    }
+  }
+
   private getSelectedOption(): Option | string | number | undefined {
     return this.isOptionsObject
       ? this.getSelectedOptionFromObject()
@@ -223,14 +231,6 @@ export default class SberSelect extends Vue {
 
     if (EL) {
       EL.focus()
-    }
-  }
-
-  private updateAndHide({ event, value }: UpdateEvent): void {
-    if (value) {
-      this.hide()
-      this.$emit('input', value)
-      this.$emit('change', { originalEvent: event, value })
     }
   }
 
